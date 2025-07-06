@@ -5,7 +5,7 @@ import os
 from copy import deepcopy
 import json
 
-from core.model.model_manager import ModelManager
+from log.log_handler import logger
 
 
 class PromptManager:
@@ -15,7 +15,7 @@ class PromptManager:
     self.__screen_index = 0
 
     self.app_states = {}
-  
+    self.current_state = {}
 
   @property
   def state_index(self) -> int:
@@ -38,20 +38,19 @@ class PromptManager:
     return self.state_sequence[self.state_index]
 
   def update_state(self):
-    if self.state_index >= len(self.state_sequence):
-      self.state_index = 0
-    else:
-      self.state_index += 1
+    self.state_index = 1 - self.state_index   # toggeling 0 and 1
 
   def build_prompt(self,
                    image: Union[Image.Image, os.PathLike[str]]):
+    logger.info(f"building prompt for state {self.get_state()}")
+
     guidelines = prompt_templates.GUILINES_AND_INSTRUCTION_TEMPLATES[self.get_state()]["guidelines"]
     instructions = prompt_templates.GUILINES_AND_INSTRUCTION_TEMPLATES[self.get_state()]["instructions"]
     if isinstance(image, Image.Image) is False:
       image = Image.open(image)
 
     if self.get_state() == "predict_action":
-      guidelines += json.dumps(self.app_states)
+      guidelines += json.dumps(self.current_state)
 
     return [
       {
@@ -74,8 +73,10 @@ class PromptManager:
     new_state.update({
       "screen_index": self.screen_index,
       "buttons": state["buttons"],
-      "screen_description": state["screen_description"]
+      # "screen_description": state["screen_description"]
     })
     self.app_states.update({
       f"screen_{self.screen_index}": new_state
     })
+    
+    logger.info(f"added state: {new_state}")

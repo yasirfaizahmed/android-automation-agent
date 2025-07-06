@@ -4,58 +4,63 @@ import os
 from pydantic import BaseModel
 from PIL import Image
 
+
 GET_IMAGE_INFO_INSTRUCTION_JSON_STRING = json.dumps({
-          "buttons": ["Login", "Signup", "help"],
-          "screen_description": "app login screen"
-        })
+    "buttons": ["Login", "Signup", "Help"],
+    "screen_description": "app login screen"
+})
+
+PREDICT_ACTION_INSTRUCTION_JSON_STRING = json.dumps({
+    "label": "Start",
+    "coordinates": [100, 200]
+})
 
 GUILINES_AND_INSTRUCTION_TEMPLATES = {
-  "get_image_info": {
-    "guidelines": """
-        You are an expert Android application tester.
+    "get_image_info": {
+        "guidelines": """
+You are an expert Android app interface analyzer.
 
-        You are tasked with analyzing screenshots of Android apps and identifying all actionable UI elements, such as buttons, text inputs, toggles, icons, and clickable areas.
+Your task is to extract all visually interactive elements (buttons, toggles, tabs, etc.) from a given app screenshot.
 
-        Be accurate. Do not include decorative or non-interactive elements.
-        Screen may contain in-game UI, menus, or system dialogs.
+Be thorough but precise — avoid listing decorative items.
 
-        If the screen is unclear or unreadable, return an empty list without guessing.
-    """,
-    "instructions": f"""
-        Given the screenshot, extract all visually identifiable interactive elements.
-        strictly find all element on the GUI image and return a list of elements or buttons in this JSON format:
-        {GET_IMAGE_INFO_INSTRUCTION_JSON_STRING}
-    """
-  },
+Always assume the user is on a touchscreen smartphone in portrait mode.
+        """,
+        "instructions": f"""
+Given the screenshot, extract all visually identifiable interactive elements.
 
-  "predict_action": {
-    "guidelines": """
-        You are an intelligent Android test agent.
+Strictly find all elements on the GUI image and return a list of elements or buttons in this JSON format:
 
-        Your goal is to autonomously navigate Android apps and games by selecting the most appropriate UI element (button/tap area) that leads to the app progressing forward naturally — like starting gameplay, continuing a session, or moving to the next screen.
+{GET_IMAGE_INFO_INSTRUCTION_JSON_STRING}
+        """
+    },
 
-        Avoid buttons or actions that:
-        - Exit the app
-        - Redirect to login, ads, rating pages, or app stores
-        - Open settings or social media
-        - Loop back to the same screen
-        - Tries to login or sign up
+    "predict_action": {
+        "guidelines": """
+You are an expert Android tester.
 
-        Use knowledge of past app states and screen transitions to make the best decision.
-    """,
-    "instructions": """
-        Using the current app state and past states, select the most logical UI element to tap next.
+Your goal is to select a button that allows the user to proceed forward in the app **without requiring login or account creation**.
 
-        Return your decision in this format:
+❌ Strictly avoid buttons with labels that suggest:
+- Login or sign in (e.g., "Login", "Log in", "Sign in", "I already have an account", "Continue with Google", "Continue with Email")
+- Account creation or registration (e.g., "Sign up", "Create account")
 
-        {
-          "click": {
-            "label": "Start",
-            "coordinates": [100, 200]
-          }
-        }
-    """
-  }
+✅ Prefer buttons that:
+- Begin the experience (e.g., "Start", "Get Started", "Continue as Guest", "Skip")
+- Take the user to the main app/dashboard or gameplay
+
+Never select a button that requires authentication, registration, or linking accounts.
+
+Assume the user wants to skip all login-related flows and jump straight into the app.
+        """,
+        "instructions": f"""
+From the given list of buttons, choose the most appropriate one that lets the app proceed to the next usable screen.
+
+Strictly return your decision in this JSON format:
+
+{PREDICT_ACTION_INSTRUCTION_JSON_STRING}
+        """
+    }
 }
 
 APP_STATE = {

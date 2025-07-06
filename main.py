@@ -26,7 +26,8 @@ def start(serial: str = SERIAL, model_path: Union[str, os.PathLike[str]] = "Hcom
   if not model:
     logger.error("could not load the model")
     exit(-1)
-  
+  logger.info("loaded model to GPU successfully")
+
   PM = prompt_manager.PromptManager()
 
   adb.launch_app(package_name=PACKAGE_NAME)
@@ -39,14 +40,18 @@ def start(serial: str = SERIAL, model_path: Union[str, os.PathLike[str]] = "Hcom
     
     prompt = PM.build_prompt(image=screenshot_path)
     response: str = MM.run_inference(image=screenshot_path, messages=prompt)
+
     fixed_json = json.loads(repair_json(response[0]))   # TODO: validate this json before adding to app states
     
     if state == "get_image_info":
       app_state = fixed_json
-      PM.add_app_state(app_state)
+      # PM.add_app_state(app_state)
+      PM.current_state = app_state
+    else:
+      x, y = fixed_json.get("coordinates")
+      adb.click(x, y)
 
     PM.update_state()
-
     time.sleep(5)
     
 
