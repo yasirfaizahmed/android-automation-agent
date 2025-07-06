@@ -1,5 +1,9 @@
 from PIL import Image
 from pathlib import Path as p
+import time
+from datetime import date
+
+from utilities.paths import IMAGES
 
 LANDSCAPE_RESOLUTION = (1280, 720)
 PORTRAIT_RESOLUTION = (720, 1280)
@@ -18,7 +22,19 @@ def pre_process_image(path: p) -> Image.Image:
   else:
     return unprocessed_image.resize(PORTRAIT_RESOLUTION)
 
-# def load_image()
+def get_current_time() -> tuple:
+  current_time = time.strftime("%H-%M-%S", time.localtime())
+  current_date = date.today().strftime("%B-%d-%Y")
+  return current_date, current_time
+
+def get_new_image_path() -> str:
+  if IMAGES.exists() is False:
+    IMAGES.mkdir()
+
+  current_date, current_time = get_current_time()
+  image_name = f"{current_date}_{current_time}.png"
+  image_path = IMAGES.joinpath(image_name)
+  return image_path
 
 
 if __name__ == "__main__":
