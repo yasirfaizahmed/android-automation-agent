@@ -3,18 +3,20 @@ import torch
 import os
 from typing import Union
 import traceback
-from device_interface.device_interactor import Adb
+from core.device.device_interactor import Adb
 from core.model.model_manager import ModelManager
+from log.log_handler import logger
+
 
 SERIAL = "emulator-5554"
 
 
 def start(serial: str = SERIAL, model_path: Union[str, os.PathLike[str]] = "Hcompany/Holo1-7B"):
-  Adb = Adb(serial=serial)
+  adb = Adb(serial=serial)
   MM = ModelManager(pretrained_model_name_or_path=model_path)
   model = MM.model
   if not model:
-    print("could not load the model")
+    logger.error("could not load the model")
     exit(-1)
   
   

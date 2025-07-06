@@ -9,7 +9,7 @@ class ModelManager:
   def __init__(self, pretrained_model_name_or_path: Union[str, os.PathLike[str]]):
     self.pretrained_model_name_or_path = pretrained_model_name_or_path
     self.model = self.load_model()
-    self.processor = AutoProcessor.from_pretrained()
+    self.processor = AutoProcessor.from_pretrained(pretrained_model_name_or_path)
 
   def load_model(self) -> bool:
     model = False
