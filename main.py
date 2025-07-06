@@ -4,6 +4,8 @@ import os
 from typing import Union
 import traceback
 import json
+import time
+from json_repair import repair_json
 
 from core.device.device_interactor import Adb
 from core.model.model_manager import ModelManager
@@ -13,10 +15,10 @@ from utilities import utils
 
 
 SERIAL = "emulator-5554"
-PACKAGE_NAME = "com.android.chrome"
+PACKAGE_NAME = "com.duolingo"
 
 
-def start(serial: str = SERIAL, model_path: Union[str, os.PathLike[str]] = "Hcompany/Holo1-7B"):
+def start(serial: str = SERIAL, model_path: Union[str, os.PathLike[str]] = "Hcompany/Holo1-3B"):
   adb = Adb(serial=serial)
   
   MM = ModelManager(pretrained_model_name_or_path=model_path)
@@ -30,13 +32,22 @@ def start(serial: str = SERIAL, model_path: Union[str, os.PathLike[str]] = "Hcom
   adb.launch_app(package_name=PACKAGE_NAME)
 
   while True:
+    state = PM.get_state()
+
     screenshot_path = utils.get_new_image_path()
     adb.screencap(local_path=screenshot_path)
+    
+    prompt = PM.build_prompt(image=screenshot_path)
+    response: str = MM.run_inference(image=screenshot_path, messages=prompt)
+    fixed_json = json.loads(repair_json(response[0]))   # TODO: validate this json before adding to app states
+    
+    if state == "get_image_info":
+      app_state = fixed_json
+      PM.add_app_state(app_state)
 
-    prompt = PM.build_prompt(**prompt_templates.GUILINES_AND_INSTRUCTION_TEMPLATES[PM.get_state()],
-                             image=screenshot_path)
-    response = MM.run_inference(image=screenshot_path, messages=prompt)
     PM.update_state()
+
+    time.sleep(5)
     
 
 if __name__ == "__main__":

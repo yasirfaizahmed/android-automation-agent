@@ -27,6 +27,9 @@ class Adb(adbutils.AdbClient):
     self.run_cmd(command=f"am start -n {main_activity}")
     return True
 
+  def click(self, x: int, y: int):
+    self.run_cmd(command=f"input tap {x} {y}")
+
 
 if __name__ == "__main__":
   Adb("emulator-5554").get_main_activity("com.duolingo")

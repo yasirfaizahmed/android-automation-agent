@@ -19,7 +19,11 @@ class ModelManager:
         pretrained_model_name_or_path=self.pretrained_model_name_or_path,
         torch_dtype=torch.bfloat16,
         attn_implementation="flash_attention_2",
-        device_map="auto",
+        device_map="cuda",
+        max_memory={ 
+        "0": "11GiB",  # leave 1GB buffer
+        "cpu": "8GiB"
+    }
       )
     except Exception:
       print(traceback.format_exc())

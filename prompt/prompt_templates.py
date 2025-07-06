@@ -4,6 +4,10 @@ import os
 from pydantic import BaseModel
 from PIL import Image
 
+GET_IMAGE_INFO_INSTRUCTION_JSON_STRING = json.dumps({
+          "buttons": ["Login", "Signup", "help"],
+          "screen_description": "app login screen"
+        })
 
 GUILINES_AND_INSTRUCTION_TEMPLATES = {
   "get_image_info": {
@@ -17,21 +21,10 @@ GUILINES_AND_INSTRUCTION_TEMPLATES = {
 
         If the screen is unclear or unreadable, return an empty list without guessing.
     """,
-    "instructions": """
+    "instructions": f"""
         Given the screenshot, extract all visually identifiable interactive elements.
         strictly find all element on the GUI image and return a list of elements or buttons in this JSON format:
-        {
-          "buttons": [
-            {
-              "label": "Start",
-              "coordinates": [100, 200]
-            },
-            {
-              "label": "Settings",
-              "coordinates": [300, 500]
-            }
-          ]
-        }
+        {GET_IMAGE_INFO_INSTRUCTION_JSON_STRING}
     """
   },
 
@@ -46,6 +39,7 @@ GUILINES_AND_INSTRUCTION_TEMPLATES = {
         - Redirect to login, ads, rating pages, or app stores
         - Open settings or social media
         - Loop back to the same screen
+        - Tries to login or sign up
 
         Use knowledge of past app states and screen transitions to make the best decision.
     """,
@@ -64,6 +58,11 @@ GUILINES_AND_INSTRUCTION_TEMPLATES = {
   }
 }
 
+APP_STATE = {
+  "screen_index": 0,
+  "buttons": [],
+  "screen_description": ""
+}
 
 def get_localization_prompt(image, instruction: str) -> list[dict[str, Any]]:
   guidelines: str = "Localize an element on the GUI image according to my instructions and output a click position as Click(x, y) with x num pixels from the left edge and y num pixels from the top edge. The x, y must be exactly in the center of the GUI element."
@@ -78,27 +77,6 @@ def get_localization_prompt(image, instruction: str) -> list[dict[str, Any]]:
         },
         {"type": "text", "text": f"{guidelines}\n{instruction}"},
       ],
-    }
-  ]
-
-
-def build_prompt(image: Union[Image.Image, os.PathLike[str]], guidelines: str, instructions: str):
-  if isinstance(image, Image.Image) is False:
-    image = Image.open(image)
-
-  return [
-    {
-      "role": "user",
-      "content": [
-        {
-          "type": "image",      # image
-          "image": image
-        },
-        {
-          "type": "text",       # text prompt
-          "text": f"{guidelines}\n{instructions}"
-        }
-      ]
     }
   ]
 
