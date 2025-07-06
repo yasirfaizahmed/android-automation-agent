@@ -1,8 +1,8 @@
-import localization
+import prompt.localization as localization
 from PIL import Image
 from typing import Any
 
-from model_manager import ModelManager
+from core.model.model_manager import ModelManager
 
 class PromptManager:
   def __init__(self):

@@ -3,8 +3,8 @@ import torch
 import os
 from typing import Union
 import traceback
-from device_interactor import Adb
-from model_manager import ModelManager
+from device_interface.device_interactor import Adb
+from core.model.model_manager import ModelManager
 
 SERIAL = "emulator-5554"
 
