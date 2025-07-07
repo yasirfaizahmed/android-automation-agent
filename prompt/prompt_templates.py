@@ -11,8 +11,8 @@ GET_IMAGE_INFO_INSTRUCTION_JSON_STRING = json.dumps({
 })
 
 PREDICT_ACTION_INSTRUCTION_JSON_STRING = json.dumps({
-    "label": "Start",
-    "coordinates": [100, 200]
+  "label": "<label of chosen button as string>",
+  "coordinates": ["x", "y"]  # integer values
 })
 
 GUILINES_AND_INSTRUCTION_TEMPLATES = {

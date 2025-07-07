@@ -25,7 +25,7 @@ class ModelManager:
         max_memory={ 
         "0": "11GiB",  # leave 1GB buffer
         "cpu": "8GiB"
-    }
+        }
       )
     except Exception:
       print(traceback.format_exc())
