@@ -30,7 +30,7 @@ def start(serial: str = SERIAL, model_path: Union[str, os.PathLike[str]] = "Hcom
 
   PM = prompt_manager.PromptManager()
 
-  adb.launch_app(package_name=PACKAGE_NAME)
+  # adb.launch_app(package_name=PACKAGE_NAME)
 
   while True:
     state = PM.get_state()
@@ -52,7 +52,7 @@ def start(serial: str = SERIAL, model_path: Union[str, os.PathLike[str]] = "Hcom
       adb.click(x, y)
 
     PM.update_state()
-    time.sleep(5)
+    time.sleep(3)
     
 
 if __name__ == "__main__":

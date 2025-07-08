@@ -19,7 +19,7 @@ class ModelManager:
     try:
       model = AutoModelForImageTextToText.from_pretrained(
         pretrained_model_name_or_path=self.pretrained_model_name_or_path,
-        torch_dtype=torch.bfloat16,
+        torch_dtype=torch.float16,
         attn_implementation="flash_attention_2",
         device_map="cuda",
         max_memory={ 
